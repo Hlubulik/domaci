@@ -1,0 +1,37 @@
+
+body{
+	background-color: yellow;
+}
+body{
+    color: pink;
+}
+p{
+    color: red;
+    font-size: 20px;
+}
+h1{
+    background-color: green;
+}
+td{
+    background-color: black;
+    color: grey;
+}
+#super{
+    color: green;
+    background-color: pink;
+    font-weight: bold;
+}
+#nadpis{
+    color: green;
+    background-color: black;
+}
+p.div{
+    position: absolute;
+    left: 100px;
+    top: 50px;
+}
+p.diw{
+    position: static;
+    left: 110px;
+    top: 60px;
+}

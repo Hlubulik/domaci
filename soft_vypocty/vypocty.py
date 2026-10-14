@@ -22,3 +22,16 @@ plt.show ()
 #python -m pip install notebook
 #python -m pip install numpy
 #python -m pip install matplotlib
+
+#matlab 
+    a = 9.81;
+t = 0:0.1:5;
+s = 0.5 * a * t.^2;
+plot(t, s)
+xlabel('cas t [s]')
+ylabel('draha s [m]')
+grid on
+hold on
+data = table(t', s', 'VariableNames', {'t', 's'});
+writetable(data, 'volny_pad.csv');
+title('Dráha při volném pádu');

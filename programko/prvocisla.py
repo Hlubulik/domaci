@@ -6,4 +6,4 @@ for n in range(1, 101):
         print(f"{n} {i}.")
     else:
         i = "není prvočíslo"
-   
+

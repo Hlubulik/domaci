@@ -1,9 +1,11 @@
+import random
 import smtplib
+import time
 from email.mime.text import MIMEText
 import pandas as pd
 
 # ==========================================
-# NASTAVENÍ E-MAILU A TEXTU
+# 1. NASTAVENÍ E-MAILU A TEXTU
 # ==========================================
 MOJE_ADRESA = "honza.zilina@gmail.com"
 MOJE_HESLO = "buoe sawk tnnq iyne"  # Heslo aplikace z účtu Google
@@ -15,33 +17,51 @@ TEXT_ZPRAVY = """Dobrý den,
 rád bych oslovil společnost {firma} s nabídkou spolupráce.
 
 S pozdravem,
-Jan Zilina
+Tvoje Jméno
 """
 
 # ==========================================
-# NAČTENÍ A ODESÍLÁNÍ
+# 2. NAČTENÍ EXCELU
 # ==========================================
-# Načtení Excelu
-df = pd.read_excel("kontakty.xlsx", engine="openpyxl")
-# Připojení k SMTP serveru Gmailu
-server = smtplib.SMTP("smtp.gmail.com", 587)
-server.starttls()
-server.login(MOJE_ADRESA, MOJE_HESLO)
+try:
+    df = pd.read_excel("kontakty.xlsx", engine="openpyxl")
+    celkem_kontaktů = len(df)
+    print(f"Úspěšně načteno {celkem_kontaktů} kontaktů z Excelu.\n")
+except Exception as e:
+    print(f"[CHYBA] Nepodařilo se načíst Excel: {e}")
+    exit()
 
-# Odesílání po jednotlivých řádcích
+# ==========================================
+# 3. ODESÍLÁNÍ E-MAILŮ (Samostatné připojení)
+# ==========================================
 for index, row in df.iterrows():
     firma = str(row["firma"]).strip()
     prijemce = str(row["email"]).strip()
 
-    # Vytvoření zprávy s úpravou jména firmy
+    # Vytvoření e-mailu
     msg = MIMEText(TEXT_ZPRAVY.format(firma=firma), "plain", "utf-8")
     msg["From"] = MOJE_ADRESA
     msg["To"] = prijemce
     msg["Subject"] = PREDMET.format(firma=firma)
 
-    # Odeslání
-    server.send_message(msg)
-    print(f"[OK] Odesláno na: {prijemce} ({firma})")
+    # Připojení a odeslání pro každý e-mail zvlášť
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(MOJE_ADRESA, MOJE_HESLO)
+        
+        server.send_message(msg)
+        server.quit()  # Řádné ukončení po odeslání
 
-server.quit()
-print("\n[HOTOVO] Všechny e-maily byly odeslány.")
+        print(f"[{index + 1}/{celkem_kontaktů}] OK: Odesláno pro {firma} ({prijemce})")
+
+    except Exception as e:
+        print(f"[{index + 1}/{celkem_kontaktů}] CHYBA při odesílání na {prijemce}: {e}")
+
+    # Pauza před dalším e-mailem (mimo otevřené SMTP spojení)
+    if index + 1 < celkem_kontaktů:
+        pauza = random.randint(15, 35)
+        print(f"   -> Čekám {pauza} sekund před dalším e-mailem...")
+        time.sleep(pauza)
+
+print("\n[HOTOVO] Zpracování všech kontaktů dokončeno!")
